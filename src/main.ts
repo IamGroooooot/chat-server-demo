@@ -20,6 +20,9 @@ async function initServer(app: INestApplication) {
   const redisIoAdapter = new RedisIoAdapter(app);
   await redisIoAdapter.connectToRedis(`redis://${redisHost}`);
 
+  // enable cors
+  app.enableCors();
+
   // start server
   await app.useWebSocketAdapter(redisIoAdapter).listen(port);
 }
