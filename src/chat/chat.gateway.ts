@@ -23,7 +23,7 @@ export class ChatGateway
     this.logger.log('Chat Server Initialized');
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
   }
 
@@ -34,6 +34,7 @@ export class ChatGateway
   @SubscribeMessage('ping')
   handleMessage(client: Socket) {
     client.emit('ping', 'pong');
+    this.logger.debug('Client pinged');
   }
 
   @SubscribeMessage('room:join')
@@ -89,6 +90,7 @@ export class ChatGateway
     };
 
     client.to(payload.room).emit('room:recv', response);
+    this.logger.debug("Client's message sent to room");
   }
 
   private validateRoomName(payload: { room: string }) {
