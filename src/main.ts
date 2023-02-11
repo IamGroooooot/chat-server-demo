@@ -25,6 +25,8 @@ async function initServer(app: INestApplication) {
 
   // start server
   await app.useWebSocketAdapter(redisIoAdapter).listen(port);
+
+  return port;
 }
 
 bootstrap().then((port) => {
