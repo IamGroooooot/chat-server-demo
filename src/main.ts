@@ -1,20 +1,27 @@
-import { Logger } from '@nestjs/common';
+import { INestApplication, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { RedisIoAdapter } from './redis/redis-adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  const port = getPort(configService);
 
-  await app.listen(port);
-
-  return port;
+  return initServer(app);
 }
 
-function getPort(configService: ConfigService) {
-  return configService.get<number>('PORT');
+async function initServer(app: INestApplication) {
+  // get config
+  const configService = app.get(ConfigService);
+  const port: number = configService.get<number>('PORT');
+  const redisHost = configService.get('REDIS.HOST');
+
+  // redis adapter
+  const redisIoAdapter = new RedisIoAdapter(app);
+  await redisIoAdapter.connectToRedis(`redis://${redisHost}`);
+
+  // start server
+  await app.useWebSocketAdapter(redisIoAdapter).listen(port);
 }
 
 bootstrap().then((port) => {
